@@ -2,7 +2,7 @@ version: '3'
 
 services:
   3x-ui:
-    image: mhsanaei/3x-ui:latest
+    image: ghcr.io/mhsanaei/3x-ui:latest
     container_name: 3x-ui
     restart: unless-stopped
     volumes:

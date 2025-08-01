@@ -1,29 +1,3 @@
-{
-    # Global options
-    admin off
-    auto_https disable_redirects
-}
-
 your-domain.com {
-    # Reverse proxy to the 3x-ui panel
     reverse_proxy 3x-ui:2053
-
-    # Auto HTTPS
-    tls {
-        on_demand
-    }
-
-    # Save certificates to the shared volume
-    tls {
-        cert_file /ssl/cert.pem
-        key_file  /ssl/key.pem
-    }
-
-    # Log configuration
-    log {
-        output file /data/access.log {
-            roll_size 10MB
-            roll_keep 10
-        }
-    }
 }

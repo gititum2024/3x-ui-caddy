@@ -1,23 +1,17 @@
-version: '3'
-
 services:
   3x-ui:
     image: ghcr.io/mhsanaei/3x-ui:latest
     container_name: 3x-ui
     restart: unless-stopped
-    volumes:
-      - 3x-ui-data:/etc/x-ui
-      - ssl-certs:/ssl:ro
     environment:
-      - SSL_CERT_FILE=/ssl/cert.pem
-      - SSL_KEY_FILE=/ssl/key.pem
-      - DOMAIN=your-domain.com  # Change this to your actual domain
-    ports:
-      - "2053:2053"  # Panel port (can be customized)
-      # xray service ports - add or modify based on your panel configuration
-      - "443:443"
-      - "8443:8443/tcp"
-      - "8443:8443/udp"
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./db:/etc/x-ui/
+      - caddy_data:/certs
+    networks:
+      - caddy
+    security_opt:
+      - no-new-privileges:true
 
   caddy:
     image: caddy:2-alpine
@@ -26,29 +20,18 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-      - ssl-certs:/ssl
-    environment:
-      - DOMAIN=your-domain.com  # Change this to your actual domain
-
-  cert-updater:
-    image: alpine:latest
-    container_name: cert-updater
-    restart: unless-stopped
-    volumes:
-      - ./cert-updater.sh:/cert-updater.sh:ro
-      - ssl-certs:/ssl
-      - 3x-ui-data:/etc/x-ui
-    depends_on:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
       - caddy
-      - 3x-ui
-    entrypoint: ["/bin/sh", "/cert-updater.sh"]
+
+networks:
+  caddy:
+    driver: bridge
 
 volumes:
-  3x-ui-data:
-  caddy-data:
-  caddy-config:
-  ssl-certs:
+  caddy_data:
+  caddy_config:
